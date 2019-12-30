@@ -1,4 +1,3 @@
-#TCED-1EC3-3710-73A0-38B1
 %matplotlib inline
 import datetime
 import matplotlib.pyplot as plt
