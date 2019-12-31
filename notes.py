@@ -174,3 +174,14 @@ print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 # Save model
 model.save("models")
+
+
+
+
+from keras.models import load_model
+
+model = load_model('model.h5')
+model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+
+classes = model.predict(data_y)
+print(classes)
