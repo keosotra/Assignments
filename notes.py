@@ -183,5 +183,19 @@ from keras.models import load_model
 model = load_model('model.h5')
 model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
+
+for i in range(10):
+    path = r'C:\Users\keosotra.veng\Desktop\Data\models'
+    new_model = keras.models.load_model(path)
+    new_model.fit(
+        train_x, np.asarray(train_y),
+        batch_size=BATCH_SIZE,
+        epochs=EPOCHS,
+        validation_data=(validation_x, np.asarray(validation_y)),
+        callbacks=[tensorboard, checkpoint],
+    )
+
+    new_model.save("C:\\Users\\keosotra.veng\\Desktop\\Data\\models")
+
 classes = model.predict(data_y)
 print(classes)
