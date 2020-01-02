@@ -199,3 +199,45 @@ for i in range(10):
 
 classes = model.predict(data_y)
 print(classes)
+
+
+#     targetlist = df['target'].tolist()
+#     df = df.drop("target", 1)
+#     df = pd.DataFrame(min_max.fit_transform(df), columns = df.columns)
+#     df['target'] = targetlist 
+#     df.dropna(inplace=True)  # cleanup again... jic.
+# #     df.dropna(inplace=True)  # cleanup again... jic.
+
+
+def preprocess_input(df):
+    df = df.drop("future", 1)  # don't need this anymore.
+    for col in df.columns:  # go through all of the columns
+        if col != "target":  # normalize all ... except for the target itself!
+            df[col] = df[col].pct_change()  # pct change "normalizes" the different currencies (each crypto coin has vastly diff values, we're really more interested in the other coin's movements)
+            df.dropna(inplace=True)  # remove the nas created by pct_change
+            df[col] = preprocessing.scale(df[col].values)  # scale between 0 and 1.
+
+#     targetlist = df['target'].tolist()
+#     df = df.drop("target", 1)
+#     df = pd.DataFrame(min_max.fit_transform(df), columns = df.columns)
+#     df['target'] = targetlist 
+#     df.dropna(inplace=True)  # cleanup again... jic.
+# #     df.dropna(inplace=True)  # cleanup again... jic.
+
+    sequential_data = []  # this is a list that will CONTAIN the sequences
+    prev_days = deque(maxlen=SEQ_LEN)  # These will be our actual sequences. They are made with deque, which keeps the maximum length by popping out older values as new ones come in
+
+    for i in df.values:  # iterate over the values
+        prev_days.append([n for n in i[:-1]])  # store all but the target
+        if len(prev_days) == SEQ_LEN:  # make sure we have 60 sequences!
+            sequential_data.append([np.array(prev_days), i[-1]])  # append those bad boys!
+
+    X = []
+    y = []
+
+    for seq, target in sequential_data:  # going over our new sequential data
+        X.append(seq)  # X is the sequences
+        y.append(target)  # y is the targets/labels (buys vs sell/notbuy)
+
+    return np.array(X), y  # return X and y...and make X a numpy array!
+#     return df
