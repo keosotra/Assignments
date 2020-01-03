@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[94]:
+# In[108]:
 
 
 import pandas as pd
@@ -16,13 +16,14 @@ from tensorflow.keras.callbacks import ModelCheckpoint, ModelCheckpoint
 import time
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
+import keras
 min_max = MinMaxScaler()
 
 pd.set_option('display.max_rows', 300)
 pd.set_option('display.max_columns', 200)
 
 SEQ_LEN = 60 # how long of a preceeding sequence to collect for RNN
-FUTURE_PERIOD_PREDICT = 5  # how far into the future are we trying to predict?
+FUTURE_PERIOD_PREDICT = 15  # how far into the future are we trying to predict?
 RATIO_TO_PREDICT = "Close_GDX"
 EPOCHS = 10  # how many passes through our data
 BATCH_SIZE = 64  # how many batches? Try smaller batch if you're getting OOM (out of memory) errors.
@@ -135,7 +136,7 @@ test = yf.download("GDX, GLD, GDXJ, GOLD, NEM,FNV,AEM, RGLD,KL,BTG, AUY, WPM, KG
 len(test)
 
 
-# In[97]:
+# In[109]:
 
 
 main_df = test.copy()
@@ -178,6 +179,7 @@ print(f"VALIDATION Dont buys: {validation_y.count(0)}, buys: {validation_y.count
 model = Sequential()
 model.add(LSTM(128, input_shape=(train_x.shape[1:]), return_sequences=True))
 model.add(Dropout(0.2))
+
 model.add(BatchNormalization())
 
 model.add(LSTM(128, return_sequences=True))
@@ -194,7 +196,14 @@ model.add(Dropout(0.2))
 model.add(Dense(2, activation='softmax'))
 
 
-opt = tf.keras.optimizers.SGD(lr=0.001, decay=1e-6)
+learning_rate = 0.0001
+decay_rate = learning_rate / EPOCHS
+momentum = 0.8
+# sgd = SGD(lr=learning_rate, momentum=momentum, decay=decay_rate, nesterov=False)
+# opt = tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.0, nesterov=False)
+# opt = tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.8, nesterov=False)
+# opt = tf.keras.optimizers.SGD(lr=learning_rate, decay=decay_rate, momentum=0.8, nesterov=False)
+opt = tf.keras.optimizers.SGD(lr=learning_rate, decay=decay_rate, momentum=momentum, nesterov=False)
 
 # Compile model
 model.compile(
@@ -205,7 +214,7 @@ model.compile(
 
 tensorboard = TensorBoard(log_dir="logs",  profile_batch = 100000000)
 
-filepath = "C:\\Users\\keosotra.veng\\Desktop\\Data\\logs\\RNN_Final-{epoch:02d}-{val_accuracy:.3f}.model"  # unique file name that will include the epoch and the validation acc for that epoch
+filepath = "C:\\Users\\keosotra.veng\\Desktop\\Data\\logs\\RNNV1_Final-{epoch:02d}-{val_accuracy:.3f}.model"  # unique file name that will include the epoch and the validation acc for that epoch
 checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max') # saves only the best ones
 
 # Train model
@@ -222,7 +231,7 @@ score = model.evaluate(validation_x, np.asarray(validation_y), verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 # Save model
-model.save("C:\\Users\\keosotra.veng\\Desktop\\Data\\models")
+model.save("C:\\Users\\keosotra.veng\\Desktop\\Data\\modelsV1")
 
 
 # In[88]:
