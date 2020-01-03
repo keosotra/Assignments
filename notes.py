@@ -241,3 +241,6 @@ def preprocess_input(df):
 
     return np.array(X), y  # return X and y...and make X a numpy array!
 #     return df
+
+
+https://www.programcreek.com/python/example/104284/keras.optimizers.SGD
