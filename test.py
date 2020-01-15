@@ -1,8 +1,14 @@
-#!/usr/bin/env python
-# coding: utf-8
+main_df = yf.download("GDX, GLD", 
+                   period='60d', interval='5m')
+main_df.columns = main_df.columns.map('_'.join)
+main_df.drop(main_df.tail(2).index,inplace=True) 
+main_df = main_df.rename({'Close_GDX': 'close'}, axis=1)  # new method
+main_df = main_df[['Close_GLD', 'close', 'Volume_GDX', 'Volume_GLD']]
+main_df = clean_data(main_df, for_train=True)
+main_df.ta.macd(append=True)
+main_df.dropna(inplace=True)
 
-# In[283]:
-
+-----------------------
 
 import pandas as pd
 from collections import deque
