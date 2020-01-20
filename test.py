@@ -1,3 +1,47 @@
+def clean_data(df, for_train=False, target=False):
+  df = df.round(2)
+  df = df.fillna(method='bfill')
+  df = df.fillna(method='ffill')
+  df = df.mask(df==0).fillna(method='bfill')
+  df = df.mask(df==0).fillna(method='ffill')
+
+  if target == True:
+      df['future'] = df[f'{RATIO_TO_PREDICT}'].shift(-FUTURE_PERIOD_PREDICT)
+      df['target'] = list(map(classify, df[f'{RATIO_TO_PREDICT}'], df['future']))
+
+  if for_train==True:
+      df.dropna(inplace=True)
+
+  df.index.name = 'time'
+  return df
+
+main_df = yf.download("GDX, GLD", 
+                   period='1d', interval='1m')
+main_df.columns = main_df.columns.map('_'.join)
+# main_df.drop(main_df.tail(2).index,inplace=True) 
+main_df = main_df.rename({'Close_GDX': 'close', 'High_GDX':'high', 'Low_GDX':'low'}, axis=1)  # new method
+main_df = main_df[['Close_GLD', 'close', 'high', 'low', 'Volume_GDX', 'Volume_GLD']]
+main_df.ta.macd(append=True)
+main_df = clean_data(main_df, for_train=True, target= False)
+main_df['future'] = main_df['close'].shift(30)
+main_df['target'] =  np.where((main_df['close'] > main_df['future']), 0, 1)
+# main_df.ta.macd(append=True)
+main_df.dropna(inplace=True)
+main_df
+
+
+df2 = main_df.copy() 
+df2.dropna(inplace=True)
+df2 = clean_data(df2, for_train=False)
+test_x, test_y = preprocess_df(df2, balance=False, shuffle=False, scale=True)
+
+score = new_model.predict_classes(test_x)
+score
+
+df2 = main_df[59:]
+
+df2['predicted'] = score
+=================================
 main_df = yf.download("GDX, GLD", 
                    period='60d', interval='5m')
 main_df.columns = main_df.columns.map('_'.join)
