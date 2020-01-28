@@ -1,7 +1,15 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[53]:
+%matplotlib inline
+import datetime
+import matplotlib.pyplot as plt
+import pandas as pd
+import pandas_ta as ta
+e = pd.DataFrame()
+e.ta.indicators()
+help(ta.adosc)
+df = main.copy()
+df = df.rename({'Close': 'close', 'Volume':'volume', 'High':'high', 'Low':'low'}, axis=1)  # new method
+df.ta.adosc( append=True)
+df
 
 
 import pandas as pd
