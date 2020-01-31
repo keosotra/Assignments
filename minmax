@@ -23,3 +23,28 @@ df.index.name = 'Datetime'
 df = df[df.index >= '2020-01-30']
 
 test_x, test_y = preprocess_df(df, balance=False, shuffle=False)
+
+
+--------------------------------------------------------
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+
+data, target = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(data, target)
+
+sc = StandardScaler()
+X_train_std = sc.fit_transform(df1)
+
+X_train_std1 = pd.DataFrame(X_train_std, index=range(X_train_std.shape[0]),
+                          columns=range(X_train_std.shape[1]))
+                          
+X_train_std1.columns = df1.columns.tolist()
+
+from sklearn.externals.joblib import dump, load
+dump(sc, r'C:\Users\keosotra.veng\Desktop\scaler\std_scaler.bin', compress=True)
+
+sc=load(r'C:\Users\keosotra.veng\Desktop\scaler\std_scaler.bin')
+X_train_std = sc.fit_transform(X_train)
+X_train_std
